@@ -1,1 +1,493 @@
+#--------------------------------------------------------------------#
+#                   Clear Lagg Config File Ver 日本語版               #
+#--------------------------------------------------------------------#
+# Configure to your liking, reload the config by tying: /lagg reload #
+#                                -                                   #
+#  Here is a helpful tutorial on this configuration setup! (Updated) #
+# http://dev.bukkit.org/bukkit-plugins/clearlagg/pages/config-setup/ #
+#--------------------------------------------------------------------#
+#          All possible mob names: https://goo.gl/cch8YK             #
+#--------------------------------------------------------------------#
+config-version: 20
 
+# -- 'use-internal-tps' Should clearlag just use the calculated internal TPS? (Improves accuracy)
+# -- 'language' Clearlag supports multiple languages (https://github.com/bob7l/Clearlag-Languages) translated by the community
+# -- 'use-internal-tps' Should Clearlag use Spigot's /tps? (Updated by minutes, much slower, but more accurate!)
+settings:
+  language: English
+  auto-update: true
+  enable-api: true
+  use-internal-tps: true
+
+#Clearlag のブロードキャストをすべて制御します。これを無効にすると、Clearlag でのすべてのブロードキャストが無効になります。
+# -- 'enabled' ブロードキャスト メッセージをクリアラグする必要がありますか? (例: 自動削除、警告など)
+# -- 'async' メッセージを別のスレッドでブロードキャストする必要があります
+# -- 'use-permission-for-broadcasts' クリアラグは権限を使用する必要がありますか?
+# -- '許可' 許可とは何ですか? (デフォルトでは、bukkit のデフォルトです)
+global-broadcasts:
+  enabled: true
+  async: false
+  use-permission-for-broadcasts: false
+  permission: bukkit.broadcast
+
+#サーバーのメインスレッドのロック/フリーズを監視します。遅延スパイクの原因を特定するのに役立ちます
+# 注: これは主にスタックトレースのみを出力します。スタックトレースを解釈するのはあなた次第です
+# 注: (!重要!) Clearlag はすべてを Spigot/Bukkit サーバーのログに出力します。
+# 注: 「ガベージ コレクション時間」が長いということは、一般にスパイクがガベージ コレクターによって引き起こされたことを意味します (基本的にはメモリの問題です。)
+# -- 'enabled' これを有効にします (ゲーム内のチャットではなく、ログにデータを出力します)
+# -- 'min-elapsed-time' フリーズ/ロックを構成するサーバーティックの長さ (ミリ秒)。 ~80未満はお勧めしません
+# -- 'check-interval' サーバーをどれくらいの頻度 (ミリ秒単位) でチェックする必要がありますか?数値を小さくすると、タイミングがより正確になります
+# -- 'follow-stack' Clearlag は変更されるたびにスタックトレースを出力し続ける必要がありますか (非常にスパムになる可能性があります)。
+# ヘルプ -> https://dev.bukkit.org/projects/clearlagg/pages/finding-the-cause-of-lag-spikes
+lag-spike-helper:
+  enabled: false
+  min-elapsed-time: 500
+  check-interval: 100
+  follow-stack: true
+
+#単一チャンク内のすべてのホッパーのアイテム転送量を制限します
+# -- 'transfer-limit' ホッパーを無効にするまでのチェック間隔ごとの転送回数
+# -- 'check-interval' 転送制限をリセットする間隔を秒単位で指定します。
+hopper-limiter:
+  enabled: false
+  transfer-limit: 5
+  check-interval: 1
+
+#RAM の使用量を計測します。 「制限」を超えた場合は、「コマンド」を実行します。
+# 注: サーバーが大量のメモリを使用するのはごく普通のことです。 JVM のガベージ コレクターは自動的にメモリを解放します。
+# 注: サーバーをサポートできないメモリが非常に少ない場合にのみ、これを使用してください。
+# -- 「ram-limit」は MB 単位です。割り当てられた RAM の最大量に正確に設定しないでください。
+# -- 'interval' は、clearlag が RAM の使用状況をチェックする頻度です
+# -- 「commands」には、RAM 制限に達したときに実行されるコマンドがリストされます。
+ram-meter:
+  enabled: false
+  interval: 20
+  ram-limit: 5000
+  commands:
+    - 'lagg killmobs'
+    - 'lagg clear'
+
+#「/lagg halt」コマンドの動作を設定する
+# -- 'remove-entities' はアイテム、primed-tnt、Mob などのエンティティを削除します
+# -- 'disable-natural-entity-spawning' はサーバーの自然界の生成を無効にします
+# -- 'halted' このセクションは、'/lagg halt' 中にどのアクションを停止するかを定義します。
+halt-command:
+  remove-entities: true
+  disable-natural-entity-spawning: true
+  halted:
+    fire: true
+    fire-burn: true
+    explosion: true
+    decay: true
+    block-fade: true
+    block-form: true
+    block-spread: true
+    block-natural-change: true
+
+#これにより、ユーザーが 1 ティック (1 秒あたり 20 ティック) で歩いたり飛んだりして移動できる速度が制限されます。
+#チャンクの過負荷を防ぐために、プレイヤー速度/飛行速度を上げたサーバーでこれを使用することを強くお勧めします
+#Spigot の内部速度リミッターがバージョンに存在する場合は、それを使用して同じ目標を達成することもできます (パフォーマンスの向上)
+# -- 'move-max-speed' 徒歩での最大速度
+# -- 'fly-max-speed' 飛行中の最大速度
+player-speed-limiter:
+  enabled: false
+  move-max-speed: 0.7
+  fly-max-speed: 0.8
+
+#特定のアイテムが最初にスポーンされるときの年齢を設定して、他のアイテムよりも自然に早く、または遅くデスポーンするようにします。
+#ほとんど役に立たないアイテム (石など) で構成されるアイテム エンティティが多数あるサーバーに推奨
+#マテリアルリスト: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/material.html
+# -- 'items' エンティティのマテリアル名とその生成時間 (秒単位) をリストします。
+item-spawn-age-setter:
+  enabled: false
+  items:
+    stone: 240
+    grass: 240
+    cobblestone: 240
+    log: 240
+    stone_axe: 240
+    stone_pickaxe: 240
+    stone_sword: 240
+    wooden_axe: 240
+    wooden_pickaxe: 240
+    wooden_sword: 240
+    rotten_flesh: 240
+    gravel: 240
+    dirt: 240
+    leather: 200
+    sand: 240
+    bone: 240
+    beef: 240
+    chicken: 160
+    rabbit: 240
+    salmon: 240
+    cactus: 210
+    wool: 180
+    arrow: 160
+    PORKCHOP: 240
+    potato: 240
+    RED_TULIP: 240
+
+#CPU使用率を下げるために過剰繁殖を防ぐためにMobを弱体化する必要がある(そしておそらくTPSを上げる)
+#モブが近づきすぎると、衝突が非常に激しくなり、サーバーにかなりの負荷がかかります
+# -- 「max-mobs」は、「check-radius」内で許可される幼体/成体動物の数を意味します
+# -- 'check-radius' は、clearlag が 'max-mobs' をチェックする範囲の半径です
+mob-breeding-limiter:
+  enabled: false
+  max-mobs: 6
+  check-radius: 15
+
+#clearlag はサーバーの起動時に /logs の下のログをパージする必要がありますか?
+# -- 「days-old」は、何日前のログを削除できるかを意味します
+log-purger:
+  enabled: false
+  days-old: 3
+
+#/lagg area の実行中に削除すべきではないエンティティの種類は何ですか?
+area-filter:
+    - Itemframe
+    - Minecart
+    - Wolf
+    - Villager
+    - Horse
+    - ARMOR_STAND
+
+#clearlag 設定をリセットするか、更新時に設定を更新する必要があります
+# -- 'force-update' は、clearlag が新しいバージョンで構成をリセットするかどうかです。
+# -- これを false に設定すると、clearlag はリセットではなく設定を更新します。
+config-updater:
+  force-update: false
+
+#これによりMobの卵スポナーが制限されるため、プレイヤーはそれらでサーバーを「過負荷」にできなくなります
+# -- 'check-radius' は、clearlag が近くのエンティティをチェックする半径です
+# -- 「max-mobs」は、スポーンがブロックされるまでに半径内に存在できるエンティティの数です。
+mobegg-limiter:
+  enabled: false
+  check-radius: 8
+  max-mobs: 5
+
+#新しいチャンクの生成を無効にするか、一度にロードできる数に制限を設けます。
+#Spigot 1.8 以降では多くのバグが発生する可能性があるため、お勧めしません。
+# -- 'create-new-chunks' はチャンクの作成を無効または有効にします。 false は新しいチャンクを許可しません
+# -- !スピゴットビルドでは不安定です!
+chunk-limiter:
+  enabled: false
+  limit: 6000
+  create-new-chunks: true
+
+#これによりエンティティの表示範囲が変更されます
+# -- 値が低いほど、エンティティのティックが向上し、より多くの CPU サイクルが節約されます。
+# -- 高すぎる場合は、バグや多くのラグが発生することが予想されます
+mob-range:
+  enabled: false
+  zombie: 30
+  skeleton: 30
+  creeper: 20
+
+#アイテム/モブはどのくらいの時間地面に放置しておく必要がありますか
+# -- ライブ時間はティック単位で進みます (1 秒あたり 20 ティック)
+live-time:
+  enabled: false
+  interval: 10
+  mobtimer: true
+  itemtimer: true
+  arrowtimer: true
+  arrowkilltime: 15
+  moblivetime: 600
+  itemlivetime: 240
+
+#このオプションでは、多すぎる tnt-minecart の配置が禁止されます
+# -- 'radius' は、clearlag が TNT トロッコをチェックする半径です
+tnt-minecart:
+  enabled: false
+  max: 2
+  radius: 6
+
+#このオプションは全体的なディスペンサーの発射速度を減らします
+# -- 「時間」はミリ秒単位です
+dispenser-reducer:
+  enabled: false
+  time: 100
+
+#このオプションは、大量の TNT の爆発を減らし、TNT の遅れを減らします。
+# -- 'check-radius' は、clearlag がプライミングされた TNT をチェックする半径です
+# -- 'max-primed' は、clearlag が削除を開始する前に許可される半径内の最大プライミング TNT です。
+tnt-reducer:
+  enabled: false
+  check-radius: 5
+  max-primed: 3
+
+#このオプションは延焼率を低減します
+# -- 「時間」はミリ秒単位です
+firespread-reducer:
+  enabled: false
+  time: 2000
+
+#1 つのチャンクに保持できるエンティティの数はいくつですか?
+# -- 'entities' は、カウントされるすべてのエンティティをリストします。
+# 削除される可能性があります。
+chunk-entity-limiter:
+  enabled: false
+  limit: 10
+  entities:
+    - Squid
+    - Zombie
+    - Skeleton
+    - Creeper
+    - Chicken
+    - Pig
+    - Sheep
+    - Cow
+    - Horse
+    # - Pig liveTime=100 <- このMob は 100 ティック (5 秒) 生存している場合に削除されます
+
+#エンティティごとのチャンク制限。イカのような役に立たない暴徒を制限するのに非常に役立ちますが、ゾンビは制限しません
+# -- 'entity-limits' はすべてのエンティティとそのフィルターをリストし、その制限を指定する 'limit'
+# 削除/選別される
+# -- 'passive-purger' チャンクのランダム チェックを有効にして、制限を超えているかどうかを確認します。
+# -- ラグの悪用を防ぎたい場合に便利
+# -- 'passive-cleaning-enabled' パッシブパージャーを有効にします
+# -- 'check-interval' チャンクをチェックする頻度 (ティック単位、50MS)
+# -- 'chunk-batch-size' 一度にチェックするチャンクの数
+per-entity-chunk-entity-limiter:
+  enabled: false
+  entity-limits:
+    - Squid limit:1
+    - Zombie limit:2
+    - Skeleton limit:2
+    - Creeper limit:2
+    - Chicken limit:3
+    - Pig limit:5
+    - Sheep limit:5
+    - Cow limit:5
+    - Horse limit:3 !hasName
+    - Villager limit:4
+    - Arrow limit:4 inGround
+    - Rabbit limit:2
+    - PufferFish limit:2
+    - Silverfish limit:2
+    - TROPICAL_FISH limit:2
+    - COD limit:2
+    - DOLPHIN limit:2
+    - Bat limit:1
+    - Armorstand limit:10
+  passive-cleaner:
+    passive-cleaning-enabled: false
+    check-interval: 20
+    chunk-batch-size: 100
+
+#グローバルにスポーンできるMobの数
+# -- 'interval' は現在のスポーン量をチェックするチェック間隔です
+spawn-limiter:
+  enabled: false
+  interval: 15
+  mobs: 300
+  animals: 300
+
+#TPS を測定します。TPS が低くなった場合は、以下に書いたコマンドを実行してください。
+# -- 'interval' は、tps-meter が TPS をチェックする頻度です
+# -- 'tps-trigger' は、コマンドが実行される TPS です。
+# -- 'tps-recover' は、'tps-trigger' の実行後に TPS が安定しているとみなされる TPS です。
+# -- 'commands' は、tps-tigger に到達したときに実行されるコマンドをリストします。
+# -- 'recover-commands' は、tps-recover に達したときに実行されるコマンドをリストします。
+# -- 'trigger-broadcast-message' は、tps-trigger の実行時にブロードキャストされるメッセージを指定します
+# -- 'recover-broadcast-message' は、TPS が回復したときにどのメッセージをブロードキャストするかを指定します
+# -- 'broadcast-enabled' は、tps-meter がブロードキャストするかどうかを定義します
+tps-meter:
+  enabled: false
+  trigger-broadcast-message: '&6[ClearLag] &cサーバーが超負荷になっているため、遅延防止機能が実行されています。'
+  recover-broadcast-message: '&6[ClearLag] &aサーバーの過負荷は解消されました。'
+  broadcast-enabled: false
+  interval: 15
+  tps-trigger: 14.0
+  tps-recover: 19.0
+  commands:
+    - 'lagg killmobs'
+    - 'lagg clear'
+    - 'lagg halt on'
+  recover-commands:
+    - 'lagg halt off'
+
+#これは /lagg killmobs です。削除したくないものは入れてください!
+# -- 'remove-named'、カスタム名を持つ FALSE エンティティは削除されない場合
+# -- 'mob-filter' は、/lagg killmobs 中にどのMob が無視されるかをリストします。
+kill-mobs:
+   remove-named: false
+   mob-filter:
+   - Villager
+   - Wolf
+# - Pig !name="Test" <- 名前が「Test」と等しくない場合、このエンティティはフィルタリングされます
+# - ゾンビ hasName <- このエンティティは名前がある場合にフィルターされます
+   - ARMOR_STAND
+   - Horse
+
+#この弱体化モブスポナー (天然およびプレイヤー製)
+#------------------------------------------------
+#これはスポナーではなくチャンクで行われます。これを防ぐためです
+#「バイパス」するための小さな領域内でのモブスポナーの大規模な構築
+#あなたの設定した制限。また、キーをより簡単に生成できるようになります。
+#パフォーマンスを上げる
+# -- 'max-spawn' は、モブスポナーによってスポーンできる最大モブです
+# -- 'remove-mobs-on-chunk-unload' は、Clearlag が削除するかどうかです。
+# -- チャンクのアンロード時にモブスポナーによってスポーンされたモブ (強く推奨)
+mobspawner:
+  enabled: false
+  max-spawn: 4
+  remove-mobs-on-chunk-unload: true
+
+#Dont use if you have CB++ or Spigot!
+item-merger:
+  enabled: false
+  radius: 6
+
+#自動削除オプション
+# -- 警告は次のように機能します。 time = 警告が発せられる時間、msg = その時点の警告メッセージ
+# -- 注: 以下の「削除」セクションは、このリムーバーに適用されます。
+# -- 注: 間隔を短くすると問題が発生します。
+# -- 注: 「警告」を無効にするには、「警告: []」に設定します。
+# -- 注: bukkit.broadcast.user 権限により、ユーザーはブロードキャストを視聴できるようになります (デフォルトで有効になっていない場合)。
+#
+# !==[すべての文字列値は '' の中にある必要があります]==!
+#
+# -- 'remove-entities' は、削除時にどのエンティティを削除する必要があるかをリストします
+# -- 'warnings' 指定した時間に発行される警告をリストします
+# -- 'item-filter' 削除中に削除すべきではない地面アイテム
+# -- 'remove-entities' 削除中にどのエンティティを削除する必要があるか
+auto-removal:
+  enabled: true
+  broadcast-message: '&6[ClearLag] &a +RemoveAmount のエンティティがキルされました。'
+  broadcast-removal: true
+  autoremoval-interval: 460
+  world-filter:
+  # - this_world <-This world will be ignored during removal!
+  boat: false
+  falling-block: true
+  experience-orb: true
+  painting: false
+  projectile: false
+  item: true
+  itemframe: false
+  minecart: false
+  primed-tnt: true
+  item-filter:
+  # - Stone <-This item-id will be ignored during removal!
+  # - Grass
+  remove-entities:
+    - Arrow onGround
+    - Snowball
+    - Egg
+    - Fireball
+    - Boat !isMounted
+    - Minecart !isMounted
+    - MINECART_TNT
+  # - cow <- This mob-type will be REMOVED during removal!
+  # - MINECART_MOB_SPAWNER
+  # - Pig liveTime=100 <- This mob will be REMOVED if it's been alive for 100 ticks (5 seconds)
+  # - Minecart !isMounted <- This entity will be REMOVED if it's NOT mounted
+  # - Wolf !hasName <- This entity will be REMOVED if it doesn't have a name
+  warnings:
+        - 'time:400 msg:&4[ClearLag] &c警告! &7+remaining &c秒後に指定のモブがキルされます！'
+        - 'time:440 msg:&4[ClearLag] &c警告! &7+remaining &c秒後に指定のモブがキルされます！'
+
+#What should be removed during /lagg clear, nearly the same thing as auto-removal
+command-remove:
+  world-filter:
+  # - this_world <-This world will be ignored during removal!
+  broadcast-removal: false
+  boat: true
+  falling-block: true
+  experience-orb: true
+  painting: false
+  projectile: true
+  item: true
+  itemframe: false
+  minecart: true
+  primed-tnt: true
+  item-filter:
+  # - Stone <-This item-id will be ignored during removal!
+  # - Grass
+  remove-entities:
+  # - cow <- This mob-type will be REMOVED during removal!
+  # - MINECART_MOB_SPAWNER
+  # - Pig liveTime=100 <- This mob will be REMOVED if it's been alive for 100 ticks (5 seconds)
+  # - Minecart !isMounted <- This entity will be REMOVED if it's NOT mounted
+  # - Wolf !hasName <- This entity will be REMOVED if it doesn't have a name
+
+#Very very old, but still works. Just specifies a global entity limit. I'd recommend 'custom-trigger-removal' instead
+# -- 'max' max entities allowed before the entity removal is activated
+limit:
+  enabled: false
+  max: 1000
+  check-interval: 60
+  broadcast-message: '&6[ClearLag] &aMOB数制限に達したため、+RemoveAmount エンティティを削除しました!'
+  world-filter:
+  # - this_world <-This world will be ignored during removal!
+  broadcast-removal: true
+  boat: true
+  falling-block: true
+  experience-orb: true
+  painting: false
+  projectile: true
+  item: true
+  itemframe: false
+  minecart: true
+  primed-tnt: true
+  item-filter:
+  # - Stone
+  # - Grass <-This item-id will be ignored during removal!
+
+
+# Create your own custom removal stuff!
+# -- warnings works like this; time = the time warning should be given, msg = warning message at that time
+# -- NOTE: The below 'remove' section applies to this remover!
+# \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
+# >    READ FOR HELP -> https://dev.bukkit.org/projects/clearlagg/pages/config-setup <- READ FOR HELP    <
+# /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\
+custom-trigger-removal:
+  enabled: false
+  triggers:
+    trigger1:
+      trigger-type: tps-trigger
+      run-interval: 5
+      tps-trigger: 14.0
+      tps-recover: 19.0
+      jobs:
+        command-executor:
+          commands:
+            - 'lagg killmobs'
+            - 'lagg clear'
+            - 'lagg halt'
+          recover-commands:
+            - 'lagg halt'
+        entity-clearer:
+          execute-job-time: 120
+          warnings:
+            - 'time:60 msg:&4[ClearLag] &cエンティティ、ドロップされたアイテムは &7+remaining &c秒後に削除されます。'
+            - 'time:100 msg:&4[ClearLag] &cエンティティ、ドロップされたアイテムは &720 &c秒後に削除されます。'
+            - 'time:110 msg:&4[ClearLag] &cエンティティ、ドロップされたアイテムは &710 &c秒後に削除されます。'
+          world-filter:
+          # - world <-This world will be ignored during removal
+          removeEntities:
+            - item
+            - zombie !hasName
+            - skeleton !hasName
+            - pig !hasName
+            - cow !hasName
+    trigger2:
+      trigger-type: entity-limit-trigger
+      run-interval: 25
+      limit: 200
+      world-filter:
+        # - world <-This world will be ignored during checking
+      entity-limits:
+        - zombie
+        - skeleton
+        - enderman
+      jobs:
+        entity-clearer:
+          world-filter:
+          # - world <-This world will be ignored during removal
+          remove-entities:
+            - zombie
+            - skeleton
+            - enderman
